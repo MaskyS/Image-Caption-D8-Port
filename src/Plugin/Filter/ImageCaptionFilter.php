@@ -19,7 +19,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   description = @Translation("Creates captions on images using the title attribute."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_MARKUP_LANGUAGE,
  *   settings = {
- *     "javascript_status" = "with_js"
+ *     "javascript_status" = "without_js"
  *   }
  * )
  */
@@ -60,13 +60,15 @@ class ImageCaptionFilter extends FilterBase {
   * Implements hook_filter_FILTER_process().
   */
   function process($text, $filter, $format, $langcode, $cache, $cache_id) {
-    // @todo make sure to define how we are going to change callback depending on choice of user.
+
     if ($this->settings['javascript_status'] == 'With Javascript') {
         
-      $callback = 'addCaptionWithoutJavaScript';
+      $callback = 'addCaptionWithJavaScript';
 
     } else {
-        $callback = 'addCaptionWithJavaScript';
+      
+      $callback = 'addCaptionWithoutJavaScript'; 
+    
     } 
  
     storeClasses(array_filter(explode(' ', $this->settings['classes'])));
