@@ -22,7 +22,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   }
  * )
  */
-class ImageCaptionFilter extends ConfigFormBase {
+class ImageCaptionFilter extends FilterBase {
 
   /**
    * {@inheritdoc}
@@ -33,7 +33,7 @@ class ImageCaptionFilter extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Classes to be searched for image captions'),
       '#size' => 80,
-      '#default_value' => $this->settings['classes'],
+      '#default_value' => '',
       '#description' => $this->t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
       '#required' => TRUE,
     ];
@@ -68,7 +68,7 @@ class ImageCaptionFilter extends ConfigFormBase {
         $callback = 'addCaptionWithJavaScript';
     } 
  
-    image_caption_chosen_classes(array_filter(explode(' ', $this->settings['classes'])));
+    storeClasses(array_filter(explode(' ', $this->settings['classes'])));
     return preg_replace_callback('|(<img.*?>)|s', $callback, $text);
   }
 
