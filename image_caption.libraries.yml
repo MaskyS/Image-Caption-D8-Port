@@ -1,0 +1,6 @@
+image_caption: // This would basically work as a key for you.
+  version: 1.x
+  js:
+    js/image_caption.js: {}  // Name of your js file
+  dependencies:  
+    - core/jquery
