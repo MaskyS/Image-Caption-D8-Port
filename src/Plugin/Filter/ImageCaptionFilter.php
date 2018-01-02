@@ -3,6 +3,7 @@
 namespace Drupal\image_caption\Plugin\Filter;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 
 /**
@@ -69,7 +70,8 @@ class ImageCaptionFilter extends FilterBase {
     } 
  
     storeClasses(array_filter(explode(' ', $this->settings['classes'])));
-    return preg_replace_callback('|(<img.*?>)|s', $callback, $text);
+    $text = preg_replace_callback('|(<img.*?>)|s', $callback, $text);
+    return new FilterProcessResult($text);
   }
 
   /**
