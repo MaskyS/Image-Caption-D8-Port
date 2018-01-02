@@ -18,7 +18,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   description = @Translation("Creates captions on images using the title attribute."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_MARKUP_LANGUAGE,
  *   settings = {
- *     "javascript_status" = "embed"
+ *     "javascript_status" = "with_js"
  *   }
  * )
  */
@@ -79,7 +79,7 @@ class ImageCaptionFilter extends ConfigFormBase {
     
     $js_choice = $this->settings['javascript_status']; 
     $classes = $this->settings['classes']; 
-    $display = js_choice == 'yes' ? $this->t('by using Javascript.') : $this->t('without using Javascript.');
+    $display = js_choice == 'with_js' ? $this->t('by using Javascript.') : $this->t('without using Javascript.');
 
     $output = $this->t('Adds captions, from the title attribute, to images with one of the following classes: %classes %js_choice', ['%classes' => $classes, '%js_choice' => $js_choice ]) . '<br />';
     return $output;
