@@ -34,7 +34,7 @@ class ImageCaptionFilter extends FilterBase {
       '#type' => 'textfield',
       '#title' => $this->t('Classes to be searched for image captions'),
       '#size' => 80,
-      '#default_value' => '',
+      '#default_value' => $this->settings['classes'],
       '#description' => $this->t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
       '#required' => TRUE,
     ];
@@ -46,7 +46,6 @@ class ImageCaptionFilter extends FilterBase {
       '#options' => [
         'with_js' => $this->t('With Javascript'),
         'without_js' => $this->t('Without Javascript'),
-        'link' => $this->t('Link'),
       ],
       '#default_value' => $this->settings['javascript_status'],
       '#description' => $this->t('Please choose whether you want to use Javascipt to create and display the captions or not.'),
@@ -59,22 +58,26 @@ class ImageCaptionFilter extends FilterBase {
   /**
    * Implements hook_filter_FILTER_process().
    */
-  public function process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  public function process($text, $langcode) {
 
-    if ($this->settings['javascript_status'] == 'With Javascript') {
+    if ($this->settings['javascript_status'] == 'with_js') {
 
-      $callback = 'addCaptionWithJavaScript';
-
+      $result = new FilterProcessResult($text);
+      $result->setAttachments([
+        'library' => ['image_caption/image_caption'],
+      ]);
+  
+      return $result;
     }
     else {
 
       $callback = 'addCaptionWithoutJavaScript';
-
+      $this->storeClasses(array_filter(explode(' ', $this->settings['classes'])));
+      $text = preg_replace_callback('|(<img.*?>)|s', [$this, $callback], $text);
+      return new FilterProcessResult($text);
     }
 
-    storeClasses(array_filter(explode(' ', $this->settings['classes'])));
-    $text = preg_replace_callback('|(<img.*?>)|s', $callback, $text);
-    return new FilterProcessResult($text);
+
   }
 
   /**
@@ -93,7 +96,7 @@ class ImageCaptionFilter extends FilterBase {
   /**
    * Storage for active class names.
    *
-   * AddCaptionWithoutJavaScript() is called by preg_replace_callback() and
+   * addCaptionWithoutJavaScript() is called by preg_replace_callback() and
    * this function allows only one argument.
    */
   protected function storeClasses($classes = NULL) {
@@ -108,7 +111,7 @@ class ImageCaptionFilter extends FilterBase {
   /**
    * This will add captions without using Javascript.
    */
-  protected function addCaptionWithoutJavaScript($img_tag_matches, $active_classes = NULL) {
+  public function addCaptionWithoutJavaScript($img_tag_matches, $active_classes = NULL) {
     $img_tag = $img_tag_matches[0];
     $return_text = $img_tag;
 
@@ -128,7 +131,7 @@ class ImageCaptionFilter extends FilterBase {
       // Get active classes via storeClasses() because preg_replace_callback()
       // does not support addional arguments.
       if ($active_classes == NULL) {
-        $active_classes = storeClasses();
+        $active_classes = $this->storeClasses();
       }
 
       if (count(array_intersect($classes, $active_classes)) > 0) {
@@ -138,7 +141,7 @@ class ImageCaptionFilter extends FilterBase {
           $title = $matches[1];
 
           // Search for width specified as an inline style or width attribute,
-          // if no width specified, don't output it on the outer span, assume
+          // if no width specified, don't output it on the outer figcaption, assume
           // width will be handled with css external to this module/filter.
           $width = '';
           if (preg_match('/width:\s*(\d+)px/i', $img_tag, $matches) == 1 || preg_match('/width=\"(\d+?)\"/i', $img_tag, $matches) == 1) {
@@ -162,7 +165,7 @@ class ImageCaptionFilter extends FilterBase {
             ],
             'caption' => [
               '#type' => 'html_tag',
-              '#tag' => 'span',
+              '#tag' => 'figcaption',
               '#attributes' => [
                 'class' => 'caption',
                 'style' => 'display:block',
@@ -175,7 +178,7 @@ class ImageCaptionFilter extends FilterBase {
           $element = [
             'image_caption' => [
               '#type' => 'html_tag',
-              '#tag' => 'span',
+              '#tag' => 'figcaption',
               '#attributes' => [
                 'class' => $class,
               ],
@@ -192,17 +195,10 @@ class ImageCaptionFilter extends FilterBase {
           }
 
           $return_text = render($element);
+
         }
       }
     }
+    return $return_text;
   }
-
-  /**
-   * This will use Javascript to add the functions. Here we will simply attach
-   * the library containing the JS.
-   */
-  protected function addCaptionWithJavaScript() {
-    $form['#attached']['library'][] = 'image_caption/image_caption';
-  }
-
 }
