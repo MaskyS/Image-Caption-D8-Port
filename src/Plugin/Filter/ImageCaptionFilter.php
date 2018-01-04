@@ -44,7 +44,8 @@ class ImageCaptionFilter extends FilterBase {
       '#required' => TRUE,
     ];
 
-    // If user selects 'Without Javascript' option, he can choose to add other classes to target as well.  
+    // If user selects 'Without Javascript' option, he can choose to add other
+    // classes to target as well.
     $form['classes'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Classes to be searched for image captions'),
@@ -52,12 +53,12 @@ class ImageCaptionFilter extends FilterBase {
       '#default_value' => $this->settings['classes'],
       '#description' => $this->t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
       '#required' => TRUE,
-      //@todo Figure out why #states option isn't working and fix it.
+      // @todo Figure out why #states option isn't working and fix it.
       '#states' => [
         'visible' => [
           'input[name="javascript_status"]' => ['value' => 'without_js'],
         ],
-      ]
+      ],
     ];
 
     return $form;
@@ -74,7 +75,7 @@ class ImageCaptionFilter extends FilterBase {
       $return_text->setAttachments([
         'library' => ['image_caption/image_caption'],
       ]);
-  
+
       return $return_text;
     }
     else {
@@ -84,7 +85,6 @@ class ImageCaptionFilter extends FilterBase {
       $text = preg_replace_callback('|(<img.*?>)|s', [$this, $callback], $text);
       return new FilterProcessResult($text);
     }
-
 
   }
 
@@ -104,8 +104,8 @@ class ImageCaptionFilter extends FilterBase {
   /**
    * Storage for active class names.
    *
-   * addCaptionWithoutJavaScript() is called by preg_replace_callback() and
-   * this function allows only one argument.
+   * The addCaptionWithoutJavaScript() function is called by
+   * preg_replace_callback() and this function allows only one argument.
    */
   protected function storeClasses($classes = NULL) {
     static $_classes = [];
@@ -149,8 +149,9 @@ class ImageCaptionFilter extends FilterBase {
           $title = $matches[1];
 
           // Search for width specified as an inline style or width attribute,
-          // if no width specified, don't output it on the outer figcaption, assume
-          // width will be handled with css external to this module/filter.
+          // if no width specified, don't output it on the outer figcaption,
+          // assume width will be handled with css external to this module /
+          // filter.
           $width = '';
           if (preg_match('/width:\s*(\d+)px/i', $img_tag, $matches) == 1 || preg_match('/width=\"(\d+?)\"/i', $img_tag, $matches) == 1) {
             $width = $matches[1];
@@ -209,4 +210,5 @@ class ImageCaptionFilter extends FilterBase {
     }
     return $return_text;
   }
+
 }
