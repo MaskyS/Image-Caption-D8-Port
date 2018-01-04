@@ -3,5 +3,3 @@ type: module
 description: 'Provides a caption for images from the title attribute using jQuery.'
 package: Filter
 core: 8.x
-
-#configure: image_caption.admin_settings

@@ -19,7 +19,8 @@ use Drupal\filter\Plugin\FilterBase;
  *   description = @Translation("Creates captions on images using the title attribute."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_MARKUP_LANGUAGE,
  *   settings = {
- *     "javascript_status" = "without_js"
+ *     "javascript_status" = "without_js",
+ *     "classes" = "caption"
  *   }
  * )
  */
@@ -29,15 +30,6 @@ class ImageCaptionFilter extends FilterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-
-    $form['classes'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Classes to be searched for image captions'),
-      '#size' => 80,
-      '#default_value' => $this->settings['classes'],
-      '#description' => $this->t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
-      '#required' => TRUE,
-    ];
 
     // Ask user if he wants to use Javascript to create the captions.
     $form['javascript_status'] = [
@@ -52,6 +44,22 @@ class ImageCaptionFilter extends FilterBase {
       '#required' => TRUE,
     ];
 
+    // If user selects 'Without Javascript' option, he can choose to add other classes to target as well.  
+    $form['classes'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Classes to be searched for image captions'),
+      '#size' => 80,
+      '#default_value' => $this->settings['classes'],
+      '#description' => $this->t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
+      '#required' => TRUE,
+      //@todo Figure out why #states option isn't working and fix it.
+      '#states' => [
+        'visible' => [
+          'input[name="javascript_status"]' => ['value' => 'without_js'],
+        ],
+      ]
+    ];
+
     return $form;
   }
 
@@ -62,12 +70,12 @@ class ImageCaptionFilter extends FilterBase {
 
     if ($this->settings['javascript_status'] == 'with_js') {
 
-      $result = new FilterProcessResult($text);
-      $result->setAttachments([
+      $return_text = new FilterProcessResult($text);
+      $return_text->setAttachments([
         'library' => ['image_caption/image_caption'],
       ]);
   
-      return $result;
+      return $return_text;
     }
     else {
 
@@ -111,7 +119,7 @@ class ImageCaptionFilter extends FilterBase {
   /**
    * This will add captions without using Javascript.
    */
-  public function addCaptionWithoutJavaScript($img_tag_matches, $active_classes = NULL) {
+  protected function addCaptionWithoutJavaScript($img_tag_matches, $active_classes = NULL) {
     $img_tag = $img_tag_matches[0];
     $return_text = $img_tag;
 
@@ -174,11 +182,11 @@ class ImageCaptionFilter extends FilterBase {
             ],
           ];
 
-          // Build the wrapping elemement.
+          // Build the wrapping element.
           $element = [
             'image_caption' => [
               '#type' => 'html_tag',
-              '#tag' => 'figcaption',
+              '#tag' => 'figure',
               '#attributes' => [
                 'class' => $class,
               ],
