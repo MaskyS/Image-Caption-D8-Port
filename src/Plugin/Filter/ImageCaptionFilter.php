@@ -146,7 +146,7 @@ class ImageCaptionFilter extends FilterBase {
         // Only execute this filter on img tags that have a title attribute.
         $has_title = preg_match('/title=\"(.+?)\"/i', $img_tag, $matches) > 0;
         if ($has_title) {
-          $title = $matches[1];
+          $title = nl2br(html_entity_decode($matches[1]));
 
           // Search for width specified as an inline style or width attribute,
           // if no width specified, don't output it on the outer figcaption,
@@ -190,6 +190,7 @@ class ImageCaptionFilter extends FilterBase {
               '#tag' => 'figure',
               '#attributes' => [
                 'class' => $class,
+                'style' => 'display:block',
               ],
               '#value' => render($caption),
             ],
@@ -200,7 +201,7 @@ class ImageCaptionFilter extends FilterBase {
           }
 
           if (!empty($float)) {
-            $element['image_caption']['#attributes']['style'][] = 'float:' . $float;
+            $element['image_caption']['#attributes']['style'][] = 'float:' . $float . ';';
           }
 
           $return_text = render($element);
