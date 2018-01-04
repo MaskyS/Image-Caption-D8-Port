@@ -69,4 +69,3 @@ Drupal.behaviors.image_caption = {
 };
 
 })(jQuery);
-
