@@ -75,7 +75,7 @@ Current maintainers:
  * Kifah Meeran (Kifah Meeran) - https://drupal.org/user/3509455
  * David Thomas (davidwhthomas) - https://www.drupal.org/u/davidwhthomas
 
-This project has been partly ported by a Google Code-In student.
+This project has been fully ported by a Google Code-In student.
 
  * Google Code-In is an international contest for high-school students that
    allows them to contribute to open source projects while earning cool
