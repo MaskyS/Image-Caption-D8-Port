@@ -53,10 +53,9 @@ class ImageCaptionFilter extends FilterBase {
       '#default_value' => $this->settings['classes'],
       '#description' => $this->t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
       '#required' => TRUE,
-      // @todo Figure out why #states option isn't working and fix it.
       '#states' => [
         'visible' => [
-          'input[name="javascript_status"]' => ['value' => 'without_js'],
+          ':input[data-classes="javascript_status"]' => ['value' => 'without_js'],
         ],
       ],
     ];
